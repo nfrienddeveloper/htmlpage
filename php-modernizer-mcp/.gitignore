@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.env
+.env.local
+
+# Runtime-generated learning data is kept by default (see feedback/.gitkeep).
+# If you prefer to keep the feedback log private/local, uncomment:
+# feedback/feedback.jsonl

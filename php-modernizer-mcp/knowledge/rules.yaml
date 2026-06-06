@@ -1,0 +1,110 @@
+# Conversion heuristics ruleset — the editable, machine-readable core of the expert.
+# Each rule maps a detectable procedural SMELL to a recommended OOP MOVE, the
+# authority behind it, and the tooling that helps. The `assess_codebase`,
+# `convert_snippet`, and `review_conversion` tools load this file. ADD RULES HERE
+# to train the expert — this is the primary, reviewable "training surface".
+
+version: 1
+meta:
+  description: Procedural-PHP smells and their OOP remedies.
+  # Bump `version` and add a changelog entry in TRAINING.md when you edit.
+
+rules:
+  - id: global-keyword
+    smell: "Use of the `global` keyword to reach shared state."
+    detect: '\bglobal\s+\$'
+    move: "Parameterize Constructor — inject the dependency instead of reaching for it."
+    principle: [DIP]
+    authority: "Feathers (Parameterize Constructor); Martin (DIP)"
+    tooling: []
+    severity: high
+
+  - id: superglobal-in-logic
+    smell: "Direct access to $_GET/$_POST/$_REQUEST/$_SESSION/$_COOKIE inside business logic."
+    detect: '\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER|FILES)\b'
+    move: "Move HTTP/session access to the edge (PSR-7 Request / a Session object) and inject parsed values."
+    principle: [SRP, DIP]
+    authority: "PSR-7; Jones (separate presentation/input from domain)"
+    tooling: []
+    severity: high
+
+  - id: new-in-logic
+    smell: "Instantiating collaborators with `new` in the middle of logic."
+    detect: '=\s*new\s+[A-Z]'
+    move: "Inject the collaborator (Extract Interface if a test double is needed)."
+    principle: [DIP]
+    authority: "Martin (DIP); Feathers (Extract Interface)"
+    tooling: []
+    severity: medium
+
+  - id: switch-on-type
+    smell: "switch/if-else dispatching on a type or kind flag."
+    detect: 'switch\s*\(\s*\$\w*(type|kind|status|mode)\w*\s*\)'
+    move: "Replace Conditional with Polymorphism — Strategy + Factory."
+    principle: [OCP, LSP]
+    authority: "Fowler (Replace Conditional with Polymorphism); GoF Strategy"
+    tooling: []
+    severity: medium
+
+  - id: time-in-logic
+    smell: "Calling date()/time()/now in logic — untestable hidden dependency."
+    detect: '\b(time|date|mktime|strtotime)\s*\('
+    move: "Inject a PSR-20 ClockInterface; pass time in."
+    principle: [DIP]
+    authority: "PSR-20; Feathers (sense/separate)"
+    tooling: []
+    severity: medium
+
+  - id: echo-html-in-logic
+    smell: "echo/print or inline HTML inside business logic."
+    detect: '\b(echo|print)\b|\?>'
+    move: "Extract presentation into a Responder/template; return data, render at the edge."
+    principle: [SRP]
+    authority: "Jones (ADR / separate presentation)"
+    tooling: []
+    severity: medium
+
+  - id: raw-db-calls
+    smell: "Scattered mysqli_*/pg_*/inline SQL in business logic."
+    detect: '\b(mysqli_|mysql_|pg_query|->query\()'
+    move: "Isolate persistence behind a Repository / Table Data Gateway; inject it."
+    principle: [SRP, DIP]
+    authority: "Fowler PoEAA (Repository/Gateway); Jones"
+    tooling: []
+    severity: high
+
+  - id: error-codes
+    smell: "Returning false/-1/null to signal errors; mixed return types."
+    detect: 'return\s+(false|-1|null)\s*;'
+    move: "Replace Error Code with Exception; use typed returns / Null Object."
+    principle: [LSP]
+    authority: "Fowler (Replace Error Code with Exception)"
+    tooling: []
+    severity: low
+
+  - id: long-include-chains
+    smell: "require/include of logic files instead of autoloading."
+    detect: '\b(require|include)(_once)?\b'
+    move: "Adopt PSR-4 autoloading via Composer; convert included libs to classes."
+    principle: [SRP]
+    authority: "PSR-4; Jones (Phase 1)"
+    tooling: [composer, rector]
+    severity: high
+
+  - id: static-service-locator
+    smell: "Static singletons / global service locators (Foo::getInstance())."
+    detect: '::getInstance\s*\('
+    move: "Replace with constructor injection via a PSR-11 container."
+    principle: [DIP]
+    authority: "Martin (DIP); PSR-11"
+    tooling: []
+    severity: medium
+
+  - id: no-strict-types
+    smell: "File missing declare(strict_types=1) and/or parameter/return types."
+    detect: '^(?!.*declare\(strict_types)'
+    move: "Add declare(strict_types=1); add param/return/property types."
+    principle: [LSP]
+    authority: "PSR-12 / modern PHP; PHPStan"
+    tooling: [rector, phpstan]
+    severity: low

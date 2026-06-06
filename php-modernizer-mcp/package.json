@@ -1,0 +1,37 @@
+{
+  "name": "php-modernizer-mcp",
+  "version": "0.1.0",
+  "description": "An MCP server that is an expert at modernizing legacy procedural PHP into clean, tested, PSR-compliant OOP. Encodes the canonical methodology (Paul M. Jones, Feathers, Fowler, SOLID, PHP-FIG/PSR) and integrates real PHP tooling (Rector, PHPStan/Psalm, PHP-CS-Fixer, PHPUnit). Learns from a curated knowledge base and a feedback log.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Dynamic Application Solutions",
+  "bin": {
+    "php-modernizer-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "knowledge",
+    "README.md",
+    "TRAINING.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "yaml": "^2.5.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0"
+  }
+}
