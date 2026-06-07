@@ -12,6 +12,8 @@ export interface Rule {
   authority?: string;
   tooling?: string[];
   severity?: "low" | "medium" | "high";
+  /** "line" (default) matches per line; "file" matches cross-line patterns. */
+  scope?: "line" | "file";
 }
 
 export interface RuleSet {

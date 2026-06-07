@@ -143,6 +143,18 @@ reusable modernization system rather than generic advice.
 
 ## Changelog
 
+- **v2 (rules.yaml)** — Best-practice training pass. Added 12 rules
+  (sql-injection-risk, header-in-logic, session-start-in-logic,
+  exit-die-in-logic, error-suppression, extract-compact, globals-array,
+  eval-usage, create-function, each-deprecated, goto-usage, debug-output,
+  mixed-concerns-file). Added `scope: file` rule support and converted
+  `no-strict-types` + `mixed-concerns-file` to file scope to eliminate
+  per-line noise (false-positive reduction — the noisy rule was inflating
+  reports). Added knowledge docs `modern-php.md` (8.x idioms) and
+  `anti-patterns.md` (over-modernization / YAGNI discipline). Added golden
+  examples: switch→strategy, inline-sql→repository, superglobals→ADR,
+  error-codes→exceptions. Added `examples/legacy/` validation fixture
+  (assessment detects all 18 distinct smell categories).
 - **v1 (rules.yaml)** — Initial ruleset: 10 core procedural→OOP smells
   (globals, superglobals, buried `new`, switch-on-type, time-in-logic,
   echo/HTML-in-logic, raw DB calls, error codes, include chains,

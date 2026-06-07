@@ -4,7 +4,7 @@
 # `convert_snippet`, and `review_conversion` tools load this file. ADD RULES HERE
 # to train the expert — this is the primary, reviewable "training surface".
 
-version: 1
+version: 2
 meta:
   description: Procedural-PHP smells and their OOP remedies.
   # Bump `version` and add a changelog entry in TRAINING.md when you edit.
@@ -101,10 +101,131 @@ rules:
     severity: medium
 
   - id: no-strict-types
-    smell: "File missing declare(strict_types=1) and/or parameter/return types."
-    detect: '^(?!.*declare\(strict_types)'
+    smell: "File missing declare(strict_types=1) (and likely missing param/return types)."
+    detect: '^(?![\s\S]*declare\s*\(\s*strict_types)'
+    scope: file
     move: "Add declare(strict_types=1); add param/return/property types."
     principle: [LSP]
     authority: "PSR-12 / modern PHP; PHPStan"
     tooling: [rector, phpstan]
     severity: low
+
+  # ── Added in v2: a broader best-practice net ──────────────────────────────
+
+  - id: sql-injection-risk
+    smell: "SQL built by interpolating/concatenating variables into the query string."
+    detect: '(SELECT|INSERT|INTO|UPDATE|DELETE|WHERE)\b.*\$\w'
+    move: "Use parameterized/prepared statements inside a Repository; never interpolate input."
+    principle: [SRP, DIP]
+    authority: "OWASP; Fowler PoEAA (Repository); PDO prepared statements"
+    tooling: [phpstan]
+    severity: high
+
+  - id: header-in-logic
+    smell: "Calling header()/setcookie()/http_response_code() inside business logic."
+    detect: '\b(header|setcookie|http_response_code)\s*\('
+    move: "Return a PSR-7 Response from a Responder/controller; set headers at the HTTP edge."
+    principle: [SRP]
+    authority: "PSR-7; Jones (ADR — Responder owns the response)"
+    tooling: []
+    severity: medium
+
+  - id: session-start-in-logic
+    smell: "session_start()/direct session bootstrapping inside domain code."
+    detect: '\bsession_start\s*\('
+    move: "Start/abstract the session at the edge; inject a Session object into logic."
+    principle: [SRP, DIP]
+    authority: "PSR-7/15 (session middleware); Feathers (sense & separate)"
+    tooling: []
+    severity: medium
+
+  - id: exit-die-in-logic
+    smell: "exit/die used for control flow inside reusable logic."
+    detect: '\b(exit|die)\s*[\(;]'
+    move: "Throw a typed exception or return a result; let the entry point decide how to end."
+    principle: [SRP, LSP]
+    authority: "Fowler (Replace Error Code with Exception); Jones"
+    tooling: []
+    severity: medium
+
+  - id: error-suppression
+    smell: "The @ error-suppression operator hides failures."
+    detect: '@[a-zA-Z_]\w*\s*\('
+    move: "Remove @; handle the error explicitly (try/catch, validation, guard clause)."
+    principle: []
+    authority: "PHP The Right Way; PHPStan (errors must be visible)"
+    tooling: [phpstan]
+    severity: medium
+
+  - id: extract-compact
+    smell: "extract()/compact() create invisible variables / hidden data flow."
+    detect: '\b(extract|compact)\s*\('
+    move: "Pass an explicit DTO/array of named values; make data flow visible and typed."
+    principle: [SRP]
+    authority: "Clean Code (explicitness); PHPStan (undefined variables)"
+    tooling: [phpstan]
+    severity: medium
+
+  - id: globals-array
+    smell: "Reading/writing the $GLOBALS superglobal as shared mutable state."
+    detect: '\$GLOBALS\s*\['
+    move: "Inject a typed Config/registry object instead of global mutable state."
+    principle: [DIP]
+    authority: "Martin (DIP); Feathers (Parameterize Constructor)"
+    tooling: []
+    severity: high
+
+  - id: eval-usage
+    smell: "eval() executes dynamic code — unsafe and unanalyzable."
+    detect: '\beval\s*\('
+    move: "Replace with explicit logic, a Strategy map, or a safe parser; never eval input."
+    principle: [OCP]
+    authority: "OWASP; PHP The Right Way (avoid eval)"
+    tooling: [phpstan]
+    severity: high
+
+  - id: create-function
+    smell: "create_function() — removed in PHP 8; string-built callbacks."
+    detect: '\bcreate_function\s*\('
+    move: "Replace with a closure / arrow function / first-class callable."
+    principle: []
+    authority: "PHP 8 migration; modern PHP idioms"
+    tooling: [rector]
+    severity: high
+
+  - id: each-deprecated
+    smell: "each() — removed in PHP 8."
+    detect: '\beach\s*\('
+    move: "Use foreach / array functions."
+    principle: []
+    authority: "PHP 8 migration"
+    tooling: [rector]
+    severity: high
+
+  - id: goto-usage
+    smell: "goto creates unstructured control flow."
+    detect: '\bgoto\s+\w'
+    move: "Restructure with loops, early returns, extracted methods, or state objects."
+    principle: [SRP]
+    authority: "Structured programming; Clean Code"
+    tooling: []
+    severity: medium
+
+  - id: debug-output
+    smell: "var_dump/print_r/var_export left in code as debugging."
+    detect: '\b(var_dump|print_r|var_export)\s*\('
+    move: "Remove; use an injected PSR-3 logger for diagnostics."
+    principle: [SRP]
+    authority: "PSR-3; production hygiene"
+    tooling: []
+    severity: low
+
+  - id: mixed-concerns-file
+    smell: "A single file mixes input handling, business logic, persistence, and HTML output."
+    detect: '(?=[\s\S]*(echo|\?>))[\s\S]*(mysqli_|->query\(|SELECT|INSERT)'
+    scope: file
+    move: "Split into layers: Action (input) → Domain (logic) → Repository (data) → Responder (output)."
+    principle: [SRP]
+    authority: "Jones (ADR/layering); Martin (SRP/Clean Architecture)"
+    tooling: []
+    severity: high

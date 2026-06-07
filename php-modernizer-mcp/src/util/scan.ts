@@ -46,6 +46,28 @@ export function scanSource(source: string, rules: Rule[]): SmellHit[] {
   const lines = source.split("\n");
   const hits: SmellHit[] = [];
   for (const rule of rules) {
+    // File-scope rules match cross-line patterns (e.g. "this file mixes HTML
+    // output AND raw SQL") against the whole source with dotAll.
+    if (rule.scope === "file") {
+      let re: RegExp;
+      try {
+        re = new RegExp(rule.detect, "is");
+      } catch {
+        continue;
+      }
+      const m = re.exec(source);
+      if (m) {
+        const line = source.slice(0, m.index).split("\n").length;
+        hits.push({
+          ruleId: rule.id,
+          severity: rule.severity ?? "medium",
+          line,
+          excerpt: `(file-level) ${rule.id}`,
+        });
+      }
+      continue;
+    }
+
     let re: RegExp;
     try {
       re = new RegExp(rule.detect, "i");

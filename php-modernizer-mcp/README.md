@@ -22,7 +22,12 @@ The methodology is taken from the most respected sources for *this specific task
 - **PHP-FIG / PSR** — PSR-1/4/12, PSR-3/7/11/15/20… the interoperability law.
 - Tooling: **Rector**, **PHPStan/Psalm**, **PHP-CS-Fixer/phpcs**, **PHPUnit**, **Composer**.
 
-See `knowledge/` for the full, editable text.
+The editable knowledge base (`knowledge/`) ships pre-trained with: `methodology.md`,
+`principles.md`, `psr.md`, `refactorings.md`, `tooling.md`, `modern-php.md` (8.x
+idioms), `anti-patterns.md` (over-modernization / YAGNI guards), a 23-rule
+`rules.yaml`, a review `rubric.md`, and 5 golden before/after exemplars under
+`knowledge/golden/`. A `examples/legacy/` fixture lets you see detection working
+out of the box (`assess_codebase` flags all 18 distinct smell categories).
 
 ## What it exposes
 
