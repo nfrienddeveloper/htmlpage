@@ -6,7 +6,8 @@
   "license": "MIT",
   "author": "Dynamic Application Solutions",
   "bin": {
-    "php-modernizer-mcp": "dist/index.js"
+    "php-modernizer-mcp": "dist/index.js",
+    "php-modernize": "dist/cli.js"
   },
   "files": [
     "dist",

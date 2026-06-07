@@ -9,6 +9,56 @@ procedural smells, prescribes the named refactoring + authority for each, runs
 the real PHP toolchain (Rector, PHPStan, PHP-CS-Fixer, PHPUnit), grades the
 result against a rubric, and **learns** from a feedback log you curate.
 
+## The power tool: `php-modernize`
+
+One command turns procedural PHP toward modern OOP. Safe **dry-run by default**;
+add `--apply` to write. It chains the whole deterministic pipeline:
+
+```bash
+npm install && npm run build      # once
+
+# point it at any file or directory in your PHP project:
+PHP_MODERNIZER_PROJECT_DIR=/path/to/project \
+  npx php-modernize src/legacy.php --php 8.3
+
+# happy with the preview? write the changes:
+PHP_MODERNIZER_PROJECT_DIR=/path/to/project \
+  npx php-modernize src/legacy.php --php 8.3 --apply
+```
+
+What each run does:
+
+| Step | Tool | Result |
+|---|---|---|
+| 1. Assess | ruleset scan | prioritized procedural-smell report |
+| 2. Upgrade | **Rector** | strict types, return/param types, dead code, early returns, `switch`→`match`, PHP-version idioms |
+| 3. Style | **PHP-CS-Fixer** | PSR-12 (with `--apply`) |
+| 4. Verify | **PHPStan + PHPUnit** | confirms it still type-checks and tests pass |
+| 5. Design | knowledge base | the rule-grounded to-do for what only judgment can do (extract classes, inject deps) — hand these to the MCP's `convert_snippet` |
+
+Real transformation it produced on a procedural file (excerpt):
+
+```diff
++declare(strict_types=1);
+
+-function is_eligible_for_discount($customer)
++function is_eligible_for_discount(array $customer): bool
+ {
+-    if ($customer['orders'] > 10) {
+-        return true;
+-    } else {
+-        return false;
+-    }
++    return $customer['orders'] > 10;
+ }
+
+-    switch ($status) { case 'paid': $label = 'Paid'; break; ... }
++    return match ($status) { 'paid' => 'Paid', 'pending' => 'Pending', default => 'Unknown' };
+```
+
+The CLI does the mechanical 80%; the MCP server (below) drives the design-level
+20% — extracting classes, injecting dependencies, building value objects.
+
 ## See it work in 30 seconds
 
 A complete before→after modernization with a passing test suite lives in
