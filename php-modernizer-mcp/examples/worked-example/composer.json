@@ -1,0 +1,26 @@
+{
+    "name": "worked/modernization-example",
+    "description": "A complete legacy procedural PHP -> OOP modernization, fully tested.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Worked\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Worked\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "demo": "php bin/demo.php"
+    }
+}

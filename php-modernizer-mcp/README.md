@@ -9,6 +9,18 @@ procedural smells, prescribes the named refactoring + authority for each, runs
 the real PHP toolchain (Rector, PHPStan, PHP-CS-Fixer, PHPUnit), grades the
 result against a rubric, and **learns** from a feedback log you curate.
 
+## See it work in 30 seconds
+
+A complete before→after modernization with a passing test suite lives in
+[`examples/worked-example/`](./examples/worked-example/) — one legacy procedural
+function turned into clean, injected, tested OOP:
+
+```bash
+cd examples/worked-example
+php bin/demo.php       # runs with zero dependencies
+composer install && composer test   # PHPUnit → OK (5 tests, 10 assertions)
+```
+
 ## The authority it's built on
 
 The methodology is taken from the most respected sources for *this specific task*:
