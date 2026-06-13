@@ -59,6 +59,28 @@ Real transformation it produced on a procedural file (excerpt):
 The CLI does the mechanical 80%; the MCP server (below) drives the design-level
 20% — extracting classes, injecting dependencies, building value objects.
 
+### Run it on a local repo (one step)
+
+For a project that only lives on your machine (not reachable from a cloud
+session), use the launcher — run it from **inside** the project:
+
+```bash
+# once: clone the tool anywhere
+git clone -b claude/php-oop-conversion-mcp-M9bI8 \
+  https://github.com/nfrienddeveloper/htmlpage.git
+
+# in your project:
+cd /path/to/your-project
+/path/to/htmlpage/php-modernizer-mcp/modernize.sh --setup        # installs Rector/PHPStan/CS-Fixer here (once)
+/path/to/htmlpage/php-modernizer-mcp/modernize.sh src --php 8.3   # dry-run (writes nothing)
+/path/to/htmlpage/php-modernizer-mcp/modernize.sh src --php 8.3 --apply
+```
+
+`modernize.sh` builds itself on first run and targets your current directory
+automatically — no env vars, no Node path juggling. (Prefer a global command?
+`cd php-modernizer-mcp && npm install && npm run build && npm link`, then just
+`php-modernize src --php 8.3` from anywhere.)
+
 ## See it work in 30 seconds
 
 A complete before→after modernization with a passing test suite lives in
